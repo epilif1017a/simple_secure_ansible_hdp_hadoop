@@ -1,0 +1,85 @@
+---
+# Prepares the cluster to be securely accessed by ansible controllers without password
+# Creates an admin account in every cluster node
+# File: 0_prepare_cluster.yml
+
+- hosts: ansible-controllers
+  serial: 1
+  become: yes
+  become_user: root
+
+  
+  vars_prompt:
+  
+    - name: "admin_user"
+      prompt: "Enter username for the cluster administrator account:"
+      private: no
+      confirm: yes
+      
+    - name: "admin_pass"
+      prompt: "Enter password for the cluster administrator account:"
+      private: yes
+      confirm: yes
+      encrypt: "sha256_crypt"
+  
+  tasks:
+  
+    - name: install/update epel-release
+      yum:
+        name: epel-release
+        state: latest
+      tags: epel
+
+    - name: install pip
+      yum:
+        name: python-pip
+        state: latest
+      tags: pip
+
+    - name: install pexpect
+      command: pip install pexpect
+      tags: pexpect
+    
+    - name: create group 'clusteradmins'
+      group:
+        name: clusteradmins
+        state: present
+      delegate_to: "{{ item }}"
+      loop: "{{ groups['all'] }}"
+        
+    - name: everyone in group 'clusteradmins' can sudo
+      lineinfile:
+        path: /etc/sudoers
+        regexp: '^%clusteradmins ALL=\(ALL\) ALL'
+        line: "%clusteradmins ALL=(ALL) ALL"
+      delegate_to: "{{ item }}"
+      loop: "{{ groups['all'] }}"
+    
+    - name: create cluster administrator user in all hosts
+      user:
+        name: "{{ admin_user }}"
+        state: present
+        group: clusteradmins
+        password: "{{ admin_pass }}"
+      delegate_to: "{{ item }}"
+      loop: "{{ groups['all'] }}"
+    
+    - name: generate ssh key
+      user:
+        name: "{{ admin_user }}"
+        generate_ssh_key: yes
+        ssh_key_file: /home/{{ admin_user }}/.ssh/id_rsa
+        ssh_key_comment: "{{ admin_user }} on {{ ansible_nodename }}"
+      
+    - name: save ssh key
+      set_fact: ssh_key="{{ lookup('file', '/home/' + admin_user + '/.ssh/id_rsa.pub') }}"
+      
+    - name: add key to authorized keys in hosts
+      authorized_key:
+        user: "{{ admin_user }}"
+        state: present
+        key: "{{ ssh_key }}"
+      delegate_to: "{{ item }}"
+      loop: "{{ groups['all'] }}"
+      
+...

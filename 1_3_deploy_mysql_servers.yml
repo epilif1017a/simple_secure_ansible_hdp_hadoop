@@ -1,0 +1,25 @@
+---
+# file: 1_3_deploy_mysql.yml
+
+- hosts: mysql-servers
+  become: yes
+  become_user: root 
+  
+  vars_prompt:
+    - name: "version_agreement"
+      prompt: "Did you check the versions to install (/roles/mysql/vars/main.yml) (y/n)?"
+      private: no
+
+    - name: "mysql_root_key"
+      prompt: "Enter root password for mysql"
+      private: yes
+      confirm: yes
+            
+  tasks:
+  - include_role:
+      name: mysql
+    vars:
+      mysql_root_pass: "{{ mysql_root_key }}"
+    when: version_agreement == 'y' or version_agreement == 'Y'
+
+...

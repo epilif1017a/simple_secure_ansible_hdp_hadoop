@@ -1,0 +1,35 @@
+---
+# file: 1_4_deploy_ambari_server.yml
+
+- hosts: ambari-servers
+  become: yes
+  become_user: root
+  
+  vars_prompt:
+    - name: "version_agreement"
+      prompt: "Did you check the versions to install (/group_vars/ambari.yml)(y/n)?"
+      private: no
+      
+    - name: "mysql_root_key"
+      prompt: "Enter root password for mysql"
+      private: yes
+      confirm: yes
+    - name: "mysql_ambari_key"
+      prompt: "Enter ambari password for mysql"
+      private: yes
+      confirm: yes
+    - name: "mysql_hive_key"
+      prompt: "Enter hive password for mysql"
+      private: yes
+      confirm: yes
+            
+  tasks:
+  - include_role:
+      name: ambariserver
+    vars:
+      mysql_root_pass: "{{ mysql_root_key }}"
+      mysql_ambari_pass: "{{ mysql_ambari_key }}"
+      mysql_hive_pass: "{{ mysql_hive_key }}"
+    when: version_agreement == 'y' or version_agreement == 'Y'
+      
+...

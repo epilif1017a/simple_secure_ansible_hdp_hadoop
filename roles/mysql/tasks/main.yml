@@ -1,0 +1,82 @@
+---
+# file: roles/mysql/tasks/main.yml
+
+- name: download mysql yum repo rpm
+  get_url: 
+    url: "{{ mysql_repo_url }}"
+    dest: "{{ ansible_env.HOME }}/mysql.rpm"
+    force: yes
+  tags: mysql-repo-conf
+
+- name: install yum-config-manager
+  yum:
+    name: yum-utils
+    state: latest
+  tags: mysql-repo-conf
+    
+- name:  install local mysql repo
+  yum:
+    name: "{{ ansible_env.HOME }}/mysql.rpm"
+    state: present
+  tags: mysql-repo-conf
+  
+- name: delete mysql repo rpm
+  file:
+    path: "{{ ansible_env.HOME }}/mysql.rpm"
+    state: absent
+  tags: mysql-repo-conf
+
+- name: disable mysql 5.7
+  shell: yum-config-manager --disable mysql57-community
+  tags: mysql-repo-conf
+    
+- name: enable mysql 5.6
+  shell: yum-config-manager --enable mysql56-community
+  tags: mysql-repo-conf
+
+- name: install mysql 5.6 and other packages
+  yum:
+    name: mysql-community-server
+    state: latest
+  tags: install-mysql
+
+- name: start mysql
+  service: name=mysqld state=started
+  tags: start-mysql
+  
+- name: install/update epel-release
+  yum:
+    name: epel-release
+    state: latest
+  tags: epel
+
+- name: install pip
+  yum:
+    name: python-pip
+    state: latest
+  tags: pip
+
+- name: install pexpect
+  command: pip install pexpect
+  tags: pexpect
+
+- name: secure mysql installation
+  expect:
+    command: mysql_secure_installation
+    responses:
+      '(?i)enter current password for root': "\n"
+      '(?i)set root password': 'y'
+      '(?i)new password': "{{ mysql_root_pass }}"
+      '(?i)re-enter new password': "{{ mysql_root_pass }}"
+      '(?i)remove anonymous users': 'y'
+      '(?i)disallow root login remotely': 'y'
+      '(?i)remove test database and access to it': 'y'
+      '(?i)reload privilege tables now': 'y'
+    echo: yes
+  register: result
+  tags: secure-mysql
+
+- debug:
+    var: result
+
+...

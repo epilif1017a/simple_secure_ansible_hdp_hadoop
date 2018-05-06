@@ -1,0 +1,67 @@
+---
+# file: roles/kerberos-kdc/tasks/main.yml
+
+- name: install kerberos packages
+  yum:
+    name: "{{ item }}"
+    state: latest
+  loop:
+    - krb5-server
+    - krb5-libs
+    - krb5-workstation
+  tags: install-kerberos
+   
+- name: send template kdc.conf to host
+  template:
+    src: ../templates/kdc.conf.j2
+    dest: /var/kerberos/krb5kdc/kdc.conf
+    mode: 0600
+    owner: root
+  tags: configure-kerberos
+  
+- name: send template krb5.conf to host
+  template:
+    src: ../templates/krb5.conf.j2
+    dest: /etc/krb5.conf
+    mode: 0644
+    owner: root
+  tags: configure-kerberos
+
+- name: create kerberos database
+  expect:
+    command: kdb5_util create -s
+    responses:
+      '(?i)(\benter kdc database master key\b)': "{{ kerberos_master_key }}"
+      '(?i)(\bre-enter kdc database master key\b)': "{{ kerberos_master_key }}"
+  tags: configure-kerberos
+  
+- name: start kerberos service
+  service:
+    name: "{{ item }}"
+    enabled: yes
+    state: started
+  loop:
+    - krb5kdc
+    - kadmin
+  tags: configure-kerberos
+    
+- name: create kerberos admin
+  expect:
+    command: kadmin.local -q "addprinc admin/admin"
+    responses:
+      '(?i)(\benter password for principal\b)': "{{ kdc_admin_pass }}"
+      '(?i)(\bre-enter password for principal\b)': "{{ kdc_admin_pass }}"
+  tags: configure-kerberos
+  
+- name: send template kadm5.acl to host
+  template:
+    src: ../templates/kadm5.acl.j2
+    dest: /var/kerberos/krb5kdc/kadm5.acl
+    mode: 0600
+    owner: root
+  tags: configure-kerberos
+    
+- name: restart kadmin
+  service: name=kadmin state=restarted
+  tags: configure-kerberos
+...

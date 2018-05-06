@@ -1,0 +1,7 @@
+---
+# file: group_vars/all.yml
+
+kerberos_realm: HADOOPREALM.LOCAL
+network_prefix: '172.16.34.'
+
+...

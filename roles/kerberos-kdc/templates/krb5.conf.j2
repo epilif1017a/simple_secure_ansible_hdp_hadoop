@@ -1,0 +1,16 @@
+# If Ambari manages the Krb5.conf file, this will be entirely replaced
+# Configuration snippets may be placed in this directory as well
+includedir /etc/krb5.conf.d/
+
+[libdefaults]
+ default_realm = {{ kerberos_realm }}
+
+[realms]
+ {{ kerberos_realm }} = {
+  kdc = {{ groups['kerberos-kdcs'][0] }}
+  admin_server = {{ groups['kerberos-kdcs'][0] }}
+ }
+
+[domain_realm]
+ .{{ groups['kerberos-kdcs'][0].split('.')[1:] | join('.') }} = {{ kerberos_realm }}
+ {{ groups['kerberos-kdcs'][0].split('.')[1:] | join('.') }} = {{ kerberos_realm }}

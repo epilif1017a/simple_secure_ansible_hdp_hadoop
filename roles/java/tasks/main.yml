@@ -1,0 +1,44 @@
+---
+# file: /roles/java/tasks/main.yml
+# from java 1.8.161 forward we don't need to configure JCE policies
+# previously, this role retrieved the JDK directly from the web, but accessing older versions (sometimes required for Hadoop to work properly) requires Oracle login, which makes the processes significantly difficult.
+
+- name: copy local java rpm
+  copy:
+    src: "{{ item }}"
+    dest: "{{ ansible_env.HOME }}/jdk.rpm"
+  with_fileglob:
+    - "../files/*.rpm"
+    
+- name: yum install java rpm
+  yum:
+    name: "{{ ansible_env.HOME }}/jdk.rpm"
+    state: present
+    
+- name: remove java rpm
+  file:
+    path: "{{ ansible_env.HOME }}/jdk.rpm"
+    state: absent
+
+- name: send java.sh template to host
+  template:
+    src: "../templates/java.sh.j2"
+    dest: "/etc/profile.d/java.sh"
+    mode: 0755
+    
+- name: source java.sh
+  shell: source /etc/profile.d/java.sh
+    
+- name: set alternatives
+  alternatives:
+    name: "{{ item }}"
+    link: /usr/bin/{{ item }}
+    path: "/usr/java/latest/bin/{{ item }}"
+  loop:
+    - java
+    - javac
+    - javaws
+    - javadoc
+    - jar
+
+...

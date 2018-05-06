@@ -1,0 +1,82 @@
+---
+#Perform necessary configurations and tunning for Big Data environments (mainly Hadoop clusters)
+#file: roles/cluster-member/tasks/main.yml
+
+- name: configure hosts file of each cluster member
+  lineinfile:
+    dest: /etc/hosts
+    regexp: '{{ item }}'
+    line: "{{ hostvars[ item ].ansible_all_ipv4_addresses | select('match', vars['network_prefix']) | list | first }} {{ item }}"
+    state: present
+  loop: "{{ groups['all'] }}"
+  when: use_auto_hosts_file == 'y' or use_auto_hosts_file == 'Y'
+  
+- name: install wget
+  yum:
+    name: wget
+    state: present
+
+- name: yum upgrade all packages
+  yum:
+    name: '*'
+    state: latest
+
+- name: disable selinux
+  selinux:
+    state: disabled
+  register: se_result
+
+- name: set selinux at runtime, if needed
+  command: setenforce 0
+  when:  se_result.reboot_required == True
+  
+- name: set max open file descriptors
+  pam_limits:
+    domain: "*"
+    limit_type: "{{ item }}"
+    limit_item: nofile
+    value: 65536 
+  loop:
+    - soft
+    - hard
+    
+- name: configure tuned-adm to import the throughput-performance profile, disable swap, and disable THP
+  copy:
+    src: ../files/
+    dest: /etc/tuned/hadoop/
+    directory_mode: 0744
+    mode: 0755
+    
+- name: set tuned-adm profile
+  command: tuned-adm profile hadoop
+  
+- name: set umask
+  lineinfile:
+    path: /etc/profile
+    regexp: "^umask"
+    line: "umask 0022"
+    
+- name: yum install ntpd
+  yum:
+    name: ntp
+    state: present
+
+- name: start and enable ntpd on startup
+  service:
+    name: ntpd
+    state: started
+    enabled: yes
+    
+- name: disable root login with password for security purposes
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '^#?PermitRootLogin'
+    line: "PermitRootLogin no"
+  when: let_root_sshlogin == 'y' or let_root_sshlogin == 'Y'
+  
+- name: restart sshd
+  service:
+    name: sshd
+    state: restarted
+
+...

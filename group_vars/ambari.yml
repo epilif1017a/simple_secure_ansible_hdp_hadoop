@@ -1,0 +1,7 @@
+---
+# file: group_vars/ambari.yml
+
+ambari_repo_url: http://public-repo-1.hortonworks.com/ambari/centos7/2.x/updates/2.6.1.5/ambari.repo
+mysql_connector_url: https://dev.mysql.com/get/Downloads/Connector-J/mysql-connector-java-5.1.46.zip
+
+...

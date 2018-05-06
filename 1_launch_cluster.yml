@@ -1,0 +1,11 @@
+---
+# file: 1_launch_cluster.yml
+
+- import_playbook: 1_1_configure_cluster_members.yml
+- import_playbook: 1_2_install_java.yml
+- import_playbook: 1_3_deploy_mysql_servers.yml
+- import_playbook: 1_4_deploy_ambari_servers.yml
+- import_playbook: 1_5_deploy_ambari_agents.yml
+- import_playbook: 1_6_deploy_kerberos_kdcs.yml
+
+...  

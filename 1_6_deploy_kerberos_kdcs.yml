@@ -1,0 +1,25 @@
+---
+# file 1_6_deploy_kerberos_kdc.yml
+
+- hosts: kerberos-kdcs
+  become: yes
+  become_user: root
+  
+  vars_prompt:
+    - name: "kerberos_master_k"
+      prompt: "Enter Kerberos master key"
+      private: yes
+      confirm: yes
+    - name: "kdc_admin_key"
+      prompt: "Enter KDC admin password"
+      private: yes
+      confirm: yes
+      
+  tasks:
+  - include_role: 
+      name: kerberos-kdc
+    vars: 
+      kerberos_master_key: "{{ kerberos_master_k }}" 
+      kdc_admin_pass: "{{ kdc_admin_key }}"
+        
+...

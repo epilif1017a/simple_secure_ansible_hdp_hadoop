@@ -1,0 +1,189 @@
+---
+# file: roles/ambariserver/tasks/main.yml
+
+- name: download ambari repo
+  get_url:
+    url: "{{ ambari_repo_url }}"
+    dest: /etc/yum.repos.d/ambari.repo
+  tags: ambari-repo
+  
+- name: yum install ambari server
+  yum:
+    name: ambari-server
+    state: latest
+    disable_gpg_check: yes
+  tags: ambari-server-install
+
+- name: download mysql connector
+  get_url:
+    url: "{{ mysql_connector_url }}"
+    dest: "{{ ansible_env.HOME }}/mysql-connector-java.zip"
+    force: yes
+  tags: mysql-connector
+
+- name: install unzip
+  yum: 
+    name: unzip 
+    state: present
+  tags: mysql-connector
+
+- name: unarchive zip file
+  unarchive:
+    src: "{{ ansible_env.HOME }}/mysql-connector-java.zip"
+    dest: "{{ ansible_env.HOME }}"
+    remote_src: yes
+  tags: mysql-connector
+  
+- name: delete zip file
+  file:
+    path: "{{ ansible_env.HOME }}/mysql-connector-java.zip"
+    state: absent
+  tags: mysql-connector
+
+- name: ensure /user/share/java directory exists
+  file:
+    path=/usr/share/java
+    recurse=yes
+    state=directory
+  tags: mysql-connector
+
+- name: gets path of jar file
+  shell: ls {{ ansible_env.HOME | quote }}/mysql-connector-java*/mysql-connector-java*.jar
+  register: jar_path
+  tags: mysql-connector
+  
+- name: copy jar file to /usr/share/java
+  copy:
+    src: "{{ jar_path.stdout_lines[0] }}"
+    dest: "/usr/share/java/mysql-connector-java.jar"
+    mode: 0644
+    force: yes
+    remote_src: yes
+  tags: mysql-connector
+  
+- name: delete jar folder
+  file:
+    path: "{{ jar_path.stdout_lines[0].split('/')[:-1] | join('/')}}"
+    state: absent
+  tags: mysql-connector
+
+- name: sends SQL template files to mysql host(s)
+  template:
+    src: "{{ item.src }}"
+    dest: "{{ ansible_env.HOME }}/{{ item.destname }}"
+    mode: "0700"
+  loop:
+    - { src: '../templates/ambari.sql', destname: 'ambari.sql' } 
+    - { src: '../templates/hive.sql', destname: 'hive.sql' } 
+  delegate_to: "{{ groups['mysql-servers'][0] }}"
+  tags: configure-databases-users
+
+- name: configure mysql ambari user and database
+  shell: mysql -u root -p{{ mysql_root_pass }} < {{ ansible_env.HOME }}/ambari.sql
+  delegate_to: "{{ groups['mysql-servers'][0] }}"
+  tags: configure-databases-users
+
+- name: configure mysql hive user and database
+  shell: mysql -u root -p{{ mysql_root_pass }} < {{ ansible_env.HOME }}/hive.sql
+  delegate_to: "{{ groups['mysql-servers'][0] }}"
+  tags: configure-databases-users
+  
+- name: delete sql files
+  file:
+    path: "{{ item }}"
+    state: absent
+  loop:
+    - "{{ ansible_env.HOME }}/ambari.sql"
+    - "{{ ansible_env.HOME }}/hive.sql"
+  tags: configure-databases-users
+
+- name: setup mysql connector for ambari
+  command: ambari-server setup --jdbc-db=mysql --jdbc-driver=/usr/share/java/mysql-connector-java.jar
+  tags: ambari-server-install
+
+- name: create ambari user
+  user:
+    name: ambari
+    home: /home/ambari
+    system: yes
+    
+- name: add ambari user permissions to sudoers
+  lineinfile:
+    path: /etc/sudoers
+    regexp: '^ambari ALL=\(ALL\) NOPASSWD\:SETENV\: \/bin\/mkdir'
+    line: "ambari ALL=(ALL) NOPASSWD:SETENV: /bin/mkdir -p /etc/security/keytabs, /bin/chmod * /etc/security/keytabs/*.keytab, /bin/chown * /etc/security/keytabs/*.keytab, /bin/chgrp * /etc/security/keytabs/*.keytab, /bin/rm -f /etc/security/keytabs/*.keytab, /bin/cp -p -f /var/lib/ambari-server/data/tmp/* /etc/security/keytabs/*.keytab"
+
+- name: change some sudoers default configurations
+  lineinfile:
+    path: /etc/sudoers
+    regexp: "{{ item }}"
+    line: "{{ item }}"
+  loop:
+    - "Defaults exempt_group = ambari"
+    - "Defaults !env_reset,env_delete-=PATH"
+    - "Defaults: ambari !requiretty"
+    
+- name: install/update epel-release
+  yum:
+    name: epel-release
+    state: latest
+  tags: epel
+
+- name: install pip
+  yum:
+    name: python-pip
+    state: latest
+  tags: pip
+
+- name: install pexpect
+  command: pip install pexpect
+  tags: pexpect
+
+- name: ambari server setup
+  expect:
+    command: ambari-server setup
+    responses:
+      '(?i)(\bok to continue\b)': "y"
+      '(?i)(\bcustomize user account\b)': "y"
+      '(?i)(\bambari-server daemon is configured to run under user\b)': "y"
+      '(?i)(\benter user account for ambari-server daemon\b)': "ambari"
+      '(?i)(\bdo you want to change oracle jdk\b)': "y"
+      '(?i)(\benter choice\b)': "3"
+      '(?i)(\bpath to java_home\b)': "/usr/java/latest"
+      '(?i)(\benable ambari server to download and install gpl licensed lzo packages\b)': "y"
+      '(?i)(\benter advanced database configuration\b)': "y"
+      '(?i)(\bhostname\b)': "{{ groups['mysql-servers'][0] }}"
+      '(?i)(\bport\b)': "3306"
+      '(?i)(\bdatabase name\b)': "ambari"
+      '(?i)(\busername\b)': "ambari"
+      '(?i)(\benter database password\b)': "{{ mysql_ambari_pass }}"
+      '(?i)(\bre-enter password\b)': "{{ mysql_ambari_pass }}"
+      '(?i)(\bproceed with configuring remote database connection properties\b)': "y"
+    echo: yes
+    timeout: 120
+  register: result
+    
+- debug:
+    var: result
+
+- name: ambari server setup security
+  expect:
+    command: ambari-server setup-security
+    responses:
+      '(?i)(\benter choice\b)': "2"
+      '(?i)(\bprovide master key\b)': "{{ mysql_ambari_pass }}"
+      '(?i)(\bre-enter master key\b)': "{{ mysql_ambari_pass }}"
+      '(?i)(\benter new master key\b)': "{{ mysql_ambari_pass }}"
+      '(?i)(\bdo you want to\b)': "y"
+    echo: yes
+    timeout: 120
+  register: result
+
+- debug:
+    var: result
+  
+- name: start ambari server
+  command: ambari-server start
+  tags: ambari-server-start
+  
+...

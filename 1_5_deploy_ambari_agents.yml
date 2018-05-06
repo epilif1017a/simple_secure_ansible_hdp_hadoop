@@ -1,0 +1,18 @@
+---
+# file: 1_5_deploy_ambari_agent.yml
+
+- hosts: ambari-agents
+  become: yes
+  become_user: root
+  
+  vars_prompt:
+    - name: "version_agreement"
+      prompt: "Did you check the versions to install (/group_vars/ambari.yml)(y/n)?"
+      private: no
+            
+  tasks:
+  - include_role:
+      name: ambariagent
+    when: version_agreement == 'y' or version_agreement == 'Y'
+      
+...
