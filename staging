@@ -1,7 +1,7 @@
 [ansible-controllers]
 localhost.localdomain
 
-[hadoop:children]
+[hadoop]
 localhost.localdomain
 
 [mysql-servers]
