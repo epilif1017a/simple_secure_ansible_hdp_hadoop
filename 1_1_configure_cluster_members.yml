@@ -10,13 +10,13 @@
       prompt: "Due to security concerns, it is encouraged to turn off remote root login via SSH. Do you want to turn it off (y/n)?"
       private: no
     - name: "use_auto_hosts_file"
-      prompt: "Use automatic hosts file configuration based on group_vars/all network_prefix variable. This will automatically search for the FQDNs and IPs of all the hosts involved in the playbook and add them to the hosts file of every cluster-member. otherwise you have to configure the hosts files of every node yourself (y/n)?"
-      private: no
-    - name: "network_prefix_check"
-      prompt: "The network_prefix variable in group_vars/all of this playbook is used to configure the hosts file of each cluster-member. Did you check the network_prefix variable to correspond to your cluster's internal network (y/n)?"
+      prompt: "Do you want to automatically search for the FQDNs and IPs of all the hosts involved in the playbook and add them to the hosts file of every cluster-member? Otherwise you have to configure the hosts files of every node yourself. Use automatic hosts file configuration based on group_vars/all network_prefix variable (y/n)?"
       private: no
       default: y
-      when: use_auto_hosts_file == 'y' or use_auto_hosts_file == 'Y'
+    - name: "network_prefix_check"
+      prompt: "[Ignore the following question if you answered negatively to the previous question - just press enter] The network_prefix variable in group_vars/all of this playbook is used to configure the hosts file of each cluster-member. Did you check the network_prefix variable to correspond to your cluster's internal network (y/n)?"
+      private: no
+      default: y
   
   tasks:
   - include_role:

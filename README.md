@@ -14,6 +14,8 @@ Ansible Playbook to Install a Kerberized Hortonworks Hadoop Cluster with some of
 
 # General Steps:
 
+0) Edit the production inventory file according to the hosts involved in your cluster. For adequate hostnames resolution, you have to configure the host files of the ansible-controller or rely on DNS resolution.
+
 1) As root (or as an existing user with escalated privileges on all machines), execute 0_prepare_cluster to configure the ansible controller with extra libraries that will be needed (e.g., pexpect), and to create and configure an ssh passwordless cluster administrator to simplify ansible administration and future tasks on the cluster.
 
 2) As the cluster administrator created above (or as an existing user with escalated privileges on all machines), execute 1_launch_cluster.yml to configure and launch the cluster components (e.g., java, pre-flight checks, mysql, ambari, kerberos).

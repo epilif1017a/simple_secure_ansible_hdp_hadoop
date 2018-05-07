@@ -2,6 +2,6 @@
 # file: group_vars/all.yml
 
 kerberos_realm: HADOOPREALM.LOCAL
-network_prefix: '172.16.34.'
+network_prefix: '192.168.56.'
 
 ...

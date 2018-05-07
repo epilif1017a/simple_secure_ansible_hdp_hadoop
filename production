@@ -1,24 +1,18 @@
 [ansible-controllers]
-localhost.localdomain
+node1.hdp.local
 
-[hadoop-masters]
-localhost.localdomain
-
-[hadoop-workers]
-localhost.localdomain
-
-[hadoop:children]
-hadoop-masters
-hadoop-workers
+[hadoop]
+node1.hdp.local
+node2.hdp.local
 
 [mysql-servers]
-localhost.localdomain
+node1.hdp.local
 
 [hive-servers]
-localhost.localdomain
+node1.hdp.local
 
 [ambari-servers]
-localhost.localdomain
+node1.hdp.local
 
 [ambari-agents:children]
 hadoop
@@ -28,4 +22,4 @@ ambari-servers
 ambari-agents
 
 [kerberos-kdcs]
-localhost.localdomain
+node1.hdp.local

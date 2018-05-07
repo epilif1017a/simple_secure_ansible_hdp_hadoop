@@ -1,15 +1,8 @@
 [ansible-controllers]
 localhost.localdomain
 
-[hadoop-masters]
-localhost.localdomain
-
-[hadoop-workers]
-localhost.localdomain
-
 [hadoop:children]
-hadoop-masters
-hadoop-workers
+localhost.localdomain
 
 [mysql-servers]
 localhost.localdomain
