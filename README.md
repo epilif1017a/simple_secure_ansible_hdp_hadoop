@@ -9,9 +9,9 @@ Ansible Playbook to Install a Kerberized Hortonworks Hadoop Cluster with some of
 
 # Requirements:
 
-1) Python's passlib should be installed
+1) Python's passlib should be installed on the ansible controller executing the playbook.
 2) Take into consideration that the user you create/choose on the play "0_prepare_cluster.yml" to administer the cluster and execute the subsequent plays (1_launch_cluster.yml) must have adequate access to read files/folders in the playbook.
-3) You have have configured your firewall rules appropriately (e.g., cluster's internal network in trusted zone)
+3) You have have configured your firewall rules appropriately (e.g., cluster's internal network in trusted zone).
 
 # General Steps:
 
@@ -32,9 +32,4 @@ Notes: If you do not want to install Kerberos simply comment the line "- import_
 # Post-installation Important Recommendations:
 
 1) Execute 2_post_ambari_installation.yml to configure some aspects after hadoop installation (as of right now, only generates http secret for SPNEGO). This play does not configure anything related to ambari configurations. You'll have to do it yourself in ambari!
-
-2) Configure ambari proxy groups and hosts to use ambari views (if they are not configured already)!
-...Services > HDFS > Configs > Advanced core-site
-...hadoop.proxyuser.ambari.groups=*
-...hadoop.proxyuser.ambari.hosts=*
 
