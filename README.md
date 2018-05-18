@@ -20,6 +20,8 @@ Ansible Playbook to Install a Kerberized Hortonworks Hadoop Cluster with some of
 
 2) As the cluster administrator created above (or as an existing user with escalated privileges on all machines), execute 1_launch_cluster.yml to configure and launch the cluster components (e.g., java, pre-flight checks, mysql, ambari, kerberos).
 
+3) Proceed to configure and HDP cluster via the Ambari Web page. Note: choose manual agent registration!
+
 # Post-installation Important Recommendations:
 
 1) Execute 2_post_ambari_installation.yml to configure some aspects after hadoop installation (as of right now, only generates http secret for SPNEGO). This play does not configure anything related to ambari configurations. You'll have to do it yourself in ambari!
