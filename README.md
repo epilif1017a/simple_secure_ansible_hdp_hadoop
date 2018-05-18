@@ -11,14 +11,21 @@ Ansible Playbook to Install a Kerberized Hortonworks Hadoop Cluster with some of
 
 1) Python's passlib should be installed
 2) Take into consideration that the user you create/choose on the play "0_prepare_cluster.yml" to administer the cluster and execute the subsequent plays (1_launch_cluster.yml) must have adequate access to read files/folders in the playbook.
+3) You have have configured your firewall rules appropriately (e.g., cluster's internal network in trusted zone)
 
 # General Steps:
 
 0) Edit the production inventory file according to the hosts involved in your cluster. For adequate hostnames resolution, you have to configure the host files of the ansible-controller or rely on DNS resolution.
 
-1) As root (or as an existing user with escalated privileges on all machines), execute 0_prepare_cluster to configure the ansible controller with extra libraries that will be needed (e.g., pexpect), and to create and configure an ssh passwordless cluster administrator to simplify ansible administration and future tasks on the cluster.
+1) As root (or as an existing user with escalated privileges on all machines), execute 0_prepare_cluster.yml to configure the ansible controller with extra libraries that will be needed (e.g., pexpect), and to create and configure an ssh passwordless cluster administrator to simplify ansible administration and future tasks on the cluster. Example:
 
-2) As the cluster administrator created above (or as an existing user with escalated privileges on all machines), execute 1_launch_cluster.yml to configure and launch the cluster components (e.g., java, pre-flight checks, mysql, ambari, kerberos).
+ansible-playbook -i production 0_prepare_cluster --ask-pass --ask-become-pass
+
+2) As the cluster administrator created above (or as an existing user with escalated privileges on all machines), execute 1_launch_cluster.yml to configure and launch the cluster components (e.g., java, pre-flight checks, mysql, ambari, kerberos). Example:
+
+ansible-playbook -i production 1_launch_cluster.yml --ask-become-pass
+
+Notes: If you do not want to install Kerberos simply comment the line "- import_playbook: 1_6_deploy_kerberos_kdcs.yml" in the 1_launch_cluster.yml file
 
 3) Proceed to configure and HDP cluster via the Ambari Web page. Note: choose manual agent registration!
 
