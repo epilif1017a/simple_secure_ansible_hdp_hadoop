@@ -1,0 +1,63 @@
+---
+# Creates a new linux user in the cluster to use in Hadoop (ShellBasedUnixGroupsMapping)
+# Creates a new user in every cluster node
+# File: create_new_user.yml
+
+- hosts: ansible-controllers
+  become: yes
+  become_user: root
+
+  
+  vars_prompt:
+  
+    - name: "user"
+      prompt: "Username:"
+      private: no
+      confirm: yes
+      
+    - name: "user_pass"
+      prompt: "Password:"
+      private: yes
+      confirm: yes
+      encrypt: "sha256_crypt"
+      
+    - name: "group"
+      prompt: "Group for the new user:"
+      private: no
+      confirm: yes
+  
+  tasks:
+  
+    - name: install/update epel-release
+      yum:
+        name: epel-release
+        state: latest
+      tags: epel
+
+    - name: install pip
+      yum:
+        name: python-pip
+        state: latest
+      tags: pip
+
+    - name: install pexpect
+      command: pip install pexpect
+      tags: pexpect
+    
+    - name: create group
+      group:
+        name: "{{ group }}"
+        state: present
+      delegate_to: "{{ item }}"
+      loop: "{{ groups['all'] }}"
+    
+    - name: create cluster user in all hadoop hosts
+      user:
+        name: "{{ user }}"
+        state: present
+        group: "{{ group }}"
+        password: "{{ user_pass }}"
+      delegate_to: "{{ item }}"
+      loop: "{{ groups['hadoop'] }}"
+      
+...
