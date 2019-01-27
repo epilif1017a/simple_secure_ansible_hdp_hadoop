@@ -12,6 +12,8 @@ Ansible Playbook to Install a Kerberized Hortonworks Hadoop Cluster with some of
 1) Python's passlib should be installed on the ansible controller executing the playbook.
 2) Take into consideration that the user you create/choose on the play "0_prepare_cluster.yml" to administer the cluster and execute the subsequent plays (1_launch_cluster.yml) must have adequate access to read files/folders in the playbook.
 3) You have have configured your firewall rules appropriately (e.g., cluster's internal network in trusted zone).
+4) You have placed your desired jdk rpm installation file in ${PLAYBOOK_HOME}/roles/java/files
+5) You have checked the variables in ${PLAYBOOK_HOME}/group_vars/ to check the version of the ambari server and mysql connector.
 
 # General Steps:
 
