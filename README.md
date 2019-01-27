@@ -23,7 +23,7 @@ Ansible Playbook to Install a Kerberized Hortonworks Hadoop Cluster with some of
 
 ansible-playbook -i production 0_prepare_cluster --ask-pass --ask-become-pass
 
-2) As the cluster administrator created above (or as an existing user with escalated privileges on all machines), execute 1_launch_cluster.yml to configure and launch the cluster components (e.g., java, pre-flight checks, mysql, ambari, kerberos). Example:
+2) As the cluster administrator created above (or as an existing user with escalated privileges on all machines), execute 1_launch_cluster.yml to configure and launch the cluster components (e.g., java, mysql, ambari, kerberos). Example:
 
 ansible-playbook -i production 1_launch_cluster.yml --ask-become-pass
 
