@@ -1,6 +1,6 @@
 ---
 # file: roles/mysql/vars/main.yml
 
-mysql_repo_url: https://dev.mysql.com/get/mysql57-community-release-el7-11.noarch.rpm
+mysql_repo_url: https://dev.mysql.com/get/mysql80-community-release-el7-2.noarch.rpm
 
 ...
