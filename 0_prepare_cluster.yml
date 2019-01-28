@@ -70,19 +70,18 @@
         generate_ssh_key: yes
         ssh_key_file: /home/{{ admin_user }}/.ssh/id_rsa
         ssh_key_comment: "{{ admin_user }} on {{ ansible_nodename }}"
-      
-    - name: save ssh key
-      set_fact: ssh_key="{{ lookup('file', '/home/' + admin_user + '/.ssh/id_rsa.pub') }}"
+      register: user
       
     - name: add key to authorized keys in hosts
       authorized_key:
         user: "{{ admin_user }}"
         state: present
-        key: "{{ ssh_key }}"
+        key: "{{ user.ssh_public_key }}"
       delegate_to: "{{ item }}"
       loop: "{{ groups['all'] }}"
       
-    - file:
+    - name: change playbook owner for future steps
+      file:
         path: playbook_dir
         owner: "{{ admin_user }}"
         group: clusteradmins
