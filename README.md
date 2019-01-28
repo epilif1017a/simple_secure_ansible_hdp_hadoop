@@ -10,10 +10,9 @@ Ansible Playbook to Install a Kerberized Hortonworks Hadoop Cluster with some of
 # Requirements:
 
 1) Python's passlib should be installed on the ansible controller executing the playbook.
-2) Take into consideration that the user you create/choose on the play "0_prepare_cluster.yml" to administer the cluster and execute the subsequent plays (1_launch_cluster.yml) must have adequate access to read files/folders in the playbook.
-3) You have have configured your firewall rules appropriately (e.g., cluster's internal network in trusted zone).
-4) You have placed your desired jdk rpm installation file in ${PLAYBOOK_HOME}/roles/java/files
-5) You have checked the variables in ${PLAYBOOK_HOME}/group_vars/ to check the version of the ambari server and mysql connector.
+2) You have have configured your firewall rules appropriately (e.g., cluster's internal network in trusted zone).
+3) You have placed your desired jdk rpm installation file in ${PLAYBOOK_HOME}/roles/java/files
+4) You have checked the variables in ${PLAYBOOK_HOME}/group_vars/ to check the version of the ambari server and mysql connector.
 
 # General Steps:
 
@@ -25,7 +24,7 @@ Ansible Playbook to Install a Kerberized Hortonworks Hadoop Cluster with some of
 ansible-playbook -i production 0_prepare_cluster.yml --ask-pass --ask-become-pass
 ```
 
-2) As the cluster administrator created above (or as an existing user with escalated privileges on all machines), execute 1_launch_cluster.yml to configure and launch the cluster components (e.g., java, mysql, ambari, kerberos). Example:
+2) As the cluster administrator created above (important!!! because this new user is the new owner of the playbook folder), execute 1_launch_cluster.yml to configure and launch the cluster components (e.g., java, mysql, ambari, kerberos). Example:
 
 ```
 ansible-playbook -i production 1_launch_cluster.yml --ask-become-pass
