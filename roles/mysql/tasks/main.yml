@@ -26,15 +26,15 @@
     state: absent
   tags: mysql-repo-conf
 
-- name: disable mysql 5.7
-  shell: yum-config-manager --disable mysql57-community
+- name: disable mysql 8
+  shell: yum-config-manager --disable mysql80-community
   tags: mysql-repo-conf
     
-- name: enable mysql 5.6
-  shell: yum-config-manager --enable mysql56-community
+- name: enable mysql 5.7
+  shell: yum-config-manager --enable mysql57-community
   tags: mysql-repo-conf
 
-- name: install mysql 5.6 and other packages
+- name: install mysql 5.7
   yum:
     name: mysql-community-server
     state: latest
