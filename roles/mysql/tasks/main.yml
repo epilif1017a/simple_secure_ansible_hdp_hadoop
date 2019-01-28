@@ -59,15 +59,19 @@
 - name: install pexpect
   command: pip install pexpect
   tags: pexpect
+  
+- name: extract temporary mysql password
+  shell: 'grep ''temporary.*root@localhost'' /var/log/mysqld.log | sed ''s/.*root@localhost: //'''
+  register: passw
 
 - name: secure mysql installation
   expect:
     command: mysql_secure_installation
     responses:
-      '(?i)enter current password for root': "\n"
-      '(?i)set root password': 'y'
+      '(?i)enter password for user root': "{{ passw.stdout }}"
       '(?i)new password': "{{ mysql_root_pass }}"
       '(?i)re-enter new password': "{{ mysql_root_pass }}"
+      '(?i)change the password for root': "\n"
       '(?i)remove anonymous users': 'y'
       '(?i)disallow root login remotely': 'y'
       '(?i)remove test database and access to it': 'y'
