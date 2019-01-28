@@ -24,13 +24,11 @@ Ansible Playbook to Install a Kerberized Hortonworks Hadoop Cluster with some of
 ansible-playbook -i production 0_prepare_cluster.yml --ask-pass --ask-become-pass
 ```
 
-2) As the cluster administrator created above (important!!! because this new user is the new owner of the playbook folder), execute 1_launch_cluster.yml to configure and launch the cluster components (e.g., java, mysql, ambari, kerberos). Example:
+2) As the cluster administrator created above (important!!! because this new user is the new owner of the playbook folder), execute 1_launch_cluster.yml to configure and launch the cluster components (e.g., java, mysql, ambari, kerberos). Notes: If you do not want to install Kerberos simply comment the line "- import_playbook: 1_6_deploy_kerberos_kdcs.yml" in the 1_launch_cluster.yml file. Example:
 
 ```
 ansible-playbook -i production 1_launch_cluster.yml --ask-become-pass
 ```
-
-2.1) Notes: If you do not want to install Kerberos simply comment the line "- import_playbook: 1_6_deploy_kerberos_kdcs.yml" in the 1_launch_cluster.yml file
 
 3) Proceed to configure an HDP cluster via the Ambari Web page. Note: choose manual agent registration!!!
 
