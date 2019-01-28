@@ -1,6 +1,10 @@
 ---
 # file: roles/mysql/vars/main.yml
 
+# this role downloads the JDK directly from the web, but accessing older versions (sometimes required for Hadoop to work properly) sometimes requires Oracle login, 
+# which makes the processes significantly difficult. This variable will be ignored if you want to install your jdk manually. 
+# You need to place the .rpm file for linux inside the files folder of this role, and change the tasks/main.yml file.
+
 jdk_url: https://download.oracle.com/otn-pub/java/jdk/8u201-b09/42970487e3af4f5aa5bca3f542482c60/jdk-8u201-linux-x64.tar.gz
 
 ...
