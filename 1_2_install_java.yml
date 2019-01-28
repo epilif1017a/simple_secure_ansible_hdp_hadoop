@@ -7,7 +7,7 @@
 
   vars_prompt:
     - name: "jdk_agreement"
-      prompt: "Since Hadoop sometimes only works with older versions of the jdk, and an Oracle login is required to download the file, this playbook expects a local jdk.rpm file. Did you placed your jdk.rpm file in /roles/java/files (y/n)?"
+      prompt: "Did you check the jdk_url variable inside (roles/java/vars/main.yml)? Or, if you modified this playbook for manual java installation, did you placed your jdk.rpm file in /roles/java/files (y/n)?"
       private: no
   
   tasks:

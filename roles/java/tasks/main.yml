@@ -1,14 +1,23 @@
 ---
 # file: /roles/java/tasks/main.yml
 # from java 1.8.161 forward we don't need to configure JCE policies
-# previously, this role retrieved the JDK directly from the web, but accessing older versions (sometimes required for Hadoop to work properly) requires Oracle login, which makes the processes significantly difficult.
 
-- name: copy local java rpm
-  copy:
-    src: "{{ item }}"
+# this role downloads the JDK directly from the web, but accessing older versions (sometimes required for Hadoop to work properly) sometimes requires Oracle login, 
+# which makes the processes significantly difficult. Use this task if you want to install your jdk manually. You need to place the .rpm file for linux inside the
+# files folder of this role 
+
+#- name: copy local java rpm
+#  copy:
+#    src: "{{ item }}"
+#    dest: "{{ ansible_env.HOME }}/jdk.rpm"
+#  with_fileglob:
+#    - "../files/*.rpm"
+
+- name: download jdk
+  get_url: 
+    url: "{{ jdk_url }}"
     dest: "{{ ansible_env.HOME }}/jdk.rpm"
-  with_fileglob:
-    - "../files/*.rpm"
+    force: yes
     
 - name: yum install java rpm
   yum:
