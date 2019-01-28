@@ -80,12 +80,4 @@
       delegate_to: "{{ item }}"
       loop: "{{ groups['all'] }}"
       
-    - name: change playbook owner for future steps
-      file:
-        path: playbook_dir
-        owner: "{{ admin_user }}"
-        group: clusteradmins
-        recurse: yes
-        mode: 0700
-      
 ...
