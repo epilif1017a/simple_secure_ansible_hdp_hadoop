@@ -148,7 +148,9 @@
       '(?i)(\bambari-server daemon is configured to run under user\b)': "y"
       '(?i)(\benter user account for ambari-server daemon\b)': "ambari"
       '(?i)(\bdo you want to change oracle jdk\b)': "y"
-      '(?i)(\benter choice\b)': "3"
+      '(?i)(\benter choice\b)':
+        - "2"
+        - "3"
       '(?i)(\bpath to java_home\b)': "/usr/java/latest"
       '(?i)(\benable ambari server to download and install gpl licensed lzo packages\b)': "y"
       '(?i)(\benter advanced database configuration\b)': "y"
@@ -159,9 +161,11 @@
       '(?i)(\benter database password\b)': "{{ mysql_ambari_pass }}"
       '(?i)(\bre-enter password\b)': "{{ mysql_ambari_pass }}"
       '(?i)(\bproceed with configuring remote database connection properties\b)': "y"
+      '(?i)(\bshould ambari use existing default jdbc\b)': "y"
     echo: yes
-    timeout: 120
+    timeout: 60
   register: result
+  no_log: true
     
 - debug:
     var: result
