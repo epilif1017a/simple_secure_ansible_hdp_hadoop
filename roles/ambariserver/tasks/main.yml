@@ -106,12 +106,15 @@
     name: ambari
     home: /home/ambari
     system: yes
-    
+
 - name: add ambari user permissions to sudoers
   lineinfile:
     path: /etc/sudoers
-    regexp: '^ambari ALL=\(ALL\) NOPASSWD\:SETENV\: \/bin\/mkdir'
-    line: "ambari ALL=(ALL) NOPASSWD:SETENV: /bin/mkdir -p /etc/security/keytabs, /bin/chmod * /etc/security/keytabs/*.keytab, /bin/chown * /etc/security/keytabs/*.keytab, /bin/chgrp * /etc/security/keytabs/*.keytab, /bin/rm -f /etc/security/keytabs/*.keytab, /bin/cp -p -f /var/lib/ambari-server/data/tmp/* /etc/security/keytabs/*.keytab"
+    regexp: "{{ item.r }}"
+    line: "{{ item.l }}"
+  loop:
+    - { r: '^ambari ALL=\(ALL\) NOPASSWD\:SETENV\: \/bin\/mkdir -p \/etc\/security\/keytabs', l: "ambari ALL=(ALL) NOPASSWD:SETENV: /bin/mkdir -p /etc/security/keytabs, /bin/ls /etc/security/keytabs, /bin/chmod * /etc/security/keytabs/*.keytab, /bin/chown * /etc/security/keytabs/*.keytab, /bin/chgrp * /etc/security/keytabs/*.keytab, /bin/rm -f /etc/security/keytabs/*.keytab, /bin/cp -p -f /var/lib/ambari-server/data/tmp/* /etc/security/keytabs/*.keytab" }
+    - { r: '^ambari ALL=\(ALL\) NOPASSWD\:SETENV\: \/bin\/mkdir -p \/var\/lib\/ambari-server\/data\/tmp', l: "ambari ALL=(ALL) NOPASSWD:SETENV: /bin/mkdir -p /var/lib/ambari-server/data/tmp, /bin/chmod * /var/lib/ambari-server/data/tmp, /bin/chown * /var/lib/ambari-server/data/tmp, /bin/chgrp * /var/lib/ambari-server/data/tmp, /bin/rm -rf /var/lib/ambari-server/data/tmp/*, /bin/cp -f /tmp/* /var/lib/ambari-server/data/tmp/*, /usr/bin/test * *, /bin/stat -c %u %g %a /var/lib/ambari-server/data/tmp/*" }
 
 - name: change some sudoers default configurations
   lineinfile:
