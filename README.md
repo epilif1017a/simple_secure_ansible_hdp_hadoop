@@ -2,7 +2,7 @@
 Ansible Playbook to Install a Kerberized Hortonworks Hadoop Cluster with some of the good practices from the documentation (e.g., ambari as non-root, dedicated mysql server, encrypted ambari database)
 
 # Tested Ansible Versions
-1) Ansible 2.5.2
+1) Ansible 2.7
 
 # Working Operative Systems
 1) CentOS 7
