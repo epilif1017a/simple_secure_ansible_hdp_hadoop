@@ -18,8 +18,8 @@
       prompt: "Enter ambari password for mysql (Use only alphanumeric or _ or - characters)"
       private: yes
       confirm: yes
-    - name: "mysql_hive_key (Use only alphanumeric or _ or - characters)"
-      prompt: "Enter hive password for mysql"
+    - name: "mysql_hive_key"
+      prompt: "Enter hive password for mysql (Use only alphanumeric or _ or - characters)"
       private: yes
       confirm: yes
             
