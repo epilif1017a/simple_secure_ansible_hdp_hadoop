@@ -21,6 +21,8 @@
     force: yes
     headers:
       Cookie: oraclelicense=accept-securebackup-cookie
+  retries: 3
+  delay: 5
       
 - name: yum install java rpm
   yum:
