@@ -6,7 +6,7 @@
   lineinfile:
     dest: /etc/hosts
     regexp: '{{ item }}'
-    line: "{{ hostvars[ item ].ansible_all_ipv4_addresses | select('match', vars['network_prefix']) | list | first }} {{ item }}"
+    line: "{{ ansible_all_ipv4_addresses | select('match', vars['network_prefix']) | list | first }} {{ item }}"
     state: present
   loop: "{{ groups['all'] }}"
   when: use_auto_hosts_file == 'y' or use_auto_hosts_file == 'Y'
