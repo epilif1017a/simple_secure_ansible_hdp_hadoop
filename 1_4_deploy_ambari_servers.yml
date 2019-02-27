@@ -15,10 +15,10 @@
       private: yes
       confirm: yes
     - name: "mysql_ambari_key"
-      prompt: "Enter ambari password for mysql"
+      prompt: "Enter ambari password for mysql (Use only alphanumeric or _ or - characters)"
       private: yes
       confirm: yes
-    - name: "mysql_hive_key"
+    - name: "mysql_hive_key (Use only alphanumeric or _ or - characters)"
       prompt: "Enter hive password for mysql"
       private: yes
       confirm: yes
