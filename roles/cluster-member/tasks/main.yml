@@ -2,11 +2,17 @@
 #Perform necessary configurations and tunning for Big Data environments (mainly Hadoop clusters)
 #file: roles/cluster-member/tasks/main.yml
 
+- name: gather facts from servers
+  setup:
+  delegate_to: "{{item}}"
+  delegate_facts: True
+  loop: "{{groups['all']}}"
+
 - name: configure hosts file of each cluster member
   lineinfile:
     dest: /etc/hosts
     regexp: '{{ item }}'
-    line: "{{ ansible_all_ipv4_addresses | select('match', vars['network_prefix']) | list | first }} {{ item }}"
+    line: "{{ hostvars[ item ].ansible_all_ipv4_addresses | select('match', vars['network_prefix']) | list | first }} {{ item }}"
     state: present
   loop: "{{ groups['all'] }}"
   when: use_auto_hosts_file == 'y' or use_auto_hosts_file == 'Y'
