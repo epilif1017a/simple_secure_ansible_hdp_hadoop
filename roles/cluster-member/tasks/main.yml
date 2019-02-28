@@ -4,9 +4,9 @@
 
 - name: gather facts from servers
   setup:
-  delegate_to: "{{item}}"
+  delegate_to: "{{ item }}"
   delegate_facts: True
-  loop: "{{groups['all']}}"
+  loop: "{{ groups['all'] }}"
 
 - name: configure hosts file of each cluster member
   lineinfile:
